@@ -14,8 +14,9 @@ function getWeatherIcon(wmoCode) {
     [[96, 99], "⛈"],
   ]);
   const arr = [...icons.keys()].find((key) => key.includes(wmoCode));
+  //arr of keys
   if (!arr) return "NOT FOUND";
-  return icons.get(arr);
+  return icons.get(arr); //get the values
 }
 
 function convertToFlag(countryCode) {
@@ -28,21 +29,26 @@ function convertToFlag(countryCode) {
 
 function formatDay(dateStr) {
   return new Intl.DateTimeFormat("en", {
-    weekday: "short",
+    weekday: "long",
   }).format(new Date(dateStr));
 }
 
 class App extends React.Component {
   constructor(props) {
     super(props); //inherit from parent component ie react
-    this.state = { location: "Bengaluru" };
+    //multiple states to one object
+    this.state = {
+      location: "Bengaluru",
+      isLoading: false,
+      displayLocation: "",
+      weather: {},
+    };
     //need to manually bind the functiont to this - current comp instance
     this.fetchWeather = this.fetchWeather.bind(this);
   }
 
   async fetchWeather() {
-    console.log("Loading weather details...");
-    console.log(this);
+    this.setState({ isLoading: true });
     try {
       // 1) Getting location (geocoding)
       const geoRes = await fetch(
@@ -51,20 +57,27 @@ class App extends React.Component {
       const geoData = await geoRes.json();
       console.log(geoData);
 
-      if (!geoData.results) throw new Error("Location not found. Try again with a valid location name");
+      if (!geoData.results)
+        throw new Error(
+          "Location not found. Try again with a valid location name"
+        );
 
       const { latitude, longitude, timezone, name, country_code } =
         geoData.results.at(0);
-      console.log(`${name} ${convertToFlag(country_code)}`);
+      this.setState({
+        displayLocation: `${name} ${convertToFlag(country_code)}`,
+      });
 
       // 2) Getting actual weather
       const weatherRes = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&timezone=${timezone}&daily=weathercode,temperature_2m_max,temperature_2m_min`
       );
       const weatherData = await weatherRes.json();
-      console.log(weatherData.daily);
+      this.setState({ weather: weatherData.daily });
     } catch (err) {
       console.err(err);
+    } finally {
+      this.setState({ isLoading: false });
     }
   }
 
@@ -81,9 +94,66 @@ class App extends React.Component {
           />
         </div>
         <button onClick={this.fetchWeather}>Get weather details</button>
+        {this.state.isLoading && (
+          <p className="loader">Loading weather details...</p>
+        )}
+        {/* if weathercode exists then render weather comp */}
+        {this.state.weather.weathercode && (
+          <Weather
+            weather={this.state.weather}
+            location={this.state.displayLocation}
+          />
+        )}
       </div>
     );
   }
 }
 
 export default App;
+
+//we dont need constructor in all class comp unless we need states and need to bind event handlers
+class Weather extends React.Component {
+  render() {
+    console.log("Props passed to weather comp", this.props);
+    //in class component need to destructure all props manually
+    const {
+      temperature_2m_max: max,
+      temperature_2m_min: min,
+      time: dates,
+      weathercode: codes,
+    } = this.props.weather;
+    return (
+      <div>
+        <h2>Weather for {this.props.location}</h2>
+        <ul className="weather">
+          {dates.map((date, i) => (
+            <Day
+              date={date}
+              max={max.at(i)}
+              min={min.at(i)}
+              code={codes.at(i)}
+              key={date}
+              isToday={i === 0}
+            />
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
+
+class Day extends React.Component {
+  render() {
+    const { date, max, min, code, isToday } = this.props;
+    console.log("Props passed to Day comp", this.props);
+    return (
+      <li className="day">
+        <span>{getWeatherIcon(code)}</span>
+        <p>{isToday ? "Today" : formatDay(date)}</p>
+        <p>
+          {Math.floor(min)}&deg; &mdash; <strong>{Math.ceil(max)}&deg; </strong>
+        </p>
+      </li>
+    );
+  }
+}
