@@ -75,18 +75,16 @@ class App extends React.Component {
     }
   };
 
+  setLocation = (e) => this.setState({ location: e.target.value });
+
   render() {
     return (
       <div className="app">
         <h1>🌞Classy weather⛈️</h1>
-        <div>
-          <input
-            type="text"
-            placeholder="Search from location..."
-            value={this.state.location}
-            onChange={(e) => this.setState({ location: e.target.value })}
-          />
-        </div>
+        <Input
+          location={this.state.location}
+          onChangeLocation={this.setLocation}
+        />
         <button onClick={this.fetchWeather}>Get weather details</button>
         {this.state.isLoading && (
           <p className="loader">Loading weather details...</p>
@@ -104,6 +102,21 @@ class App extends React.Component {
 }
 
 export default App;
+
+class Input extends React.Component {
+  render() {
+    return (
+      <div>
+        <input
+          type="text"
+          placeholder="Search from location..."
+          value={this.props.location}
+          onChange={this.props.onChangeLocation}
+        />
+      </div>
+    );
+  }
+}
 
 //we dont need constructor in all class comp unless we need states and need to bind event handlers
 class Weather extends React.Component {
@@ -145,7 +158,9 @@ class Day extends React.Component {
         <span>{getWeatherIcon(code)}</span>
         <p>{isToday ? "Today" : formatDay(date)}</p>
         <p>
-          {Math.floor(min)}&deg; &mdash; <strong>{Math.ceil(max)}&deg; </strong>
+          <strong>
+            {Math.floor(min)}&deg; &mdash; {Math.ceil(max)}&deg;{" "}
+          </strong>
         </p>
       </li>
     );
