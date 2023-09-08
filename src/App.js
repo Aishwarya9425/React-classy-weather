@@ -35,13 +35,14 @@ function formatDay(dateStr) {
 
 class App extends React.Component {
   state = {
-    location: "Bengaluru",
+    location: "",
     isLoading: false,
     displayLocation: "",
     weather: {},
   };
 
   fetchWeather = async () => {
+    if (this.state.location.length < 3) return this.setState({ weather: {} });
     this.setState({ isLoading: true });
     try {
       // 1) Getting location (geocoding)
@@ -69,7 +70,7 @@ class App extends React.Component {
       const weatherData = await weatherRes.json();
       this.setState({ weather: weatherData.daily });
     } catch (err) {
-      console.err(err);
+      console.error(err);
     } finally {
       this.setState({ isLoading: false });
     }
@@ -77,15 +78,28 @@ class App extends React.Component {
 
   setLocation = (e) => this.setState({ location: e.target.value });
 
+  //runs only on mount
+  componentDidMount() {
+    //this.fetchWeather();
+    this.setState({ location: localStorage.getItem("location") || "" });
+  }
+
+  //on both mount and re render
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.location !== prevState.location) {
+      this.fetchWeather();
+      localStorage.setItem("location", this.state.location);
+    }
+  }
+
   render() {
     return (
       <div className="app">
-        <h1>🌞Classy weather⛈️</h1>
+        <h1>🌞Get weather forecast details by entering city name⛈️</h1>
         <Input
           location={this.state.location}
           onChangeLocation={this.setLocation}
         />
-        <button onClick={this.fetchWeather}>Get weather details</button>
         {this.state.isLoading && (
           <p className="loader">Loading weather details...</p>
         )}
@@ -120,6 +134,10 @@ class Input extends React.Component {
 
 //we dont need constructor in all class comp unless we need states and need to bind event handlers
 class Weather extends React.Component {
+  //cleanup
+  componentWillUnmount() {
+    console.log("Weather component will unmount");
+  }
   render() {
     console.log("Props passed to weather comp", this.props);
     //in class component need to destructure all props manually

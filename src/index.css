@@ -11,6 +11,10 @@ html {
 }
 
 body {
+  background-image: url("./weather.gif");
+  background-repeat: no-repeat, repeat;
+  /* background-position: center; 
+  background-size: 100%; */
   font-family: "Lucida Handwriting";
   font-size: 2rem;
   height: 100vh;
@@ -19,6 +23,29 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.image {
+  height: 100px;
+  width: 100px;
+  image-rendering: auto;
+}
+
+.crisp-edges {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+.pixelated {
+  image-rendering: pixelated;
+}
+
+.smooth {
+  image-rendering: smooth;
+}
+
+.high-quality {
+  image-rendering: high-quality;
 }
 
 .app {
@@ -34,8 +61,8 @@ body {
 }
 
 h1 {
-  font-weight: 400;
-  font-size: 6rem;
+  font-weight: 300;
+  font-size: 3rem;
   letter-spacing: 2px;
   word-spacing: 5px;
 }
