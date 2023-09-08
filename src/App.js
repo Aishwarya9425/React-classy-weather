@@ -34,20 +34,14 @@ function formatDay(dateStr) {
 }
 
 class App extends React.Component {
-  constructor(props) {
-    super(props); //inherit from parent component ie react
-    //multiple states to one object
-    this.state = {
-      location: "Bengaluru",
-      isLoading: false,
-      displayLocation: "",
-      weather: {},
-    };
-    //need to manually bind the functiont to this - current comp instance
-    this.fetchWeather = this.fetchWeather.bind(this);
-  }
+  state = {
+    location: "Bengaluru",
+    isLoading: false,
+    displayLocation: "",
+    weather: {},
+  };
 
-  async fetchWeather() {
+  fetchWeather = async () => {
     this.setState({ isLoading: true });
     try {
       // 1) Getting location (geocoding)
@@ -79,7 +73,7 @@ class App extends React.Component {
     } finally {
       this.setState({ isLoading: false });
     }
-  }
+  };
 
   render() {
     return (
