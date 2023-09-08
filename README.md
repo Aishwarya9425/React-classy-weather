@@ -1,5 +1,12 @@
 # Getting Started with Create React App
 
+# Class based components
+
+Site is live at https://react-classy-weather-ten.vercel.app/
+
+![app](https://github.com/Aishwarya9425/React-classy-weather/assets/51038336/b21f9780-0d89-4193-9ecd-7b31e215cfb3)
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
